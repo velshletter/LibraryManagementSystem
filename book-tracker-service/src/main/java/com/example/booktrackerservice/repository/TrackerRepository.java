@@ -19,8 +19,4 @@ public interface TrackerRepository extends JpaRepository<Tracker, Long> {
 
     void deleteByBookId(Long bookId);
 
-    @Modifying
-    @Query("UPDATE Tracker t SET t.status = :status WHERE t.bookId = :bookId")
-    int updateStatus(@Param("bookId") Long bookId, @Param("status") String status);
-
 }

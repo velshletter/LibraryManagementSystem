@@ -5,10 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
+import com.example.basedomains.event.BookEvent;
 import com.example.bookstorageservice.dto.BookDto;
 import com.example.bookstorageservice.entity.Book;
 import com.example.bookstorageservice.exception.DuplicateDataException;
 import com.example.bookstorageservice.exception.NotFoundException;
+import com.example.bookstorageservice.kafka.BookProducer;
 import com.example.bookstorageservice.mapper.BookMapper;
 import com.example.bookstorageservice.repository.BookStorageRepository;
 import com.example.bookstorageservice.service.impl.BookStorageServiceImpl;
@@ -26,6 +28,9 @@ class BookStorageServiceTest {
 
     @Mock
     private BookStorageRepository repository;
+
+    @Mock
+    private BookProducer bookProducer;
 
     @InjectMocks
     private BookStorageServiceImpl service;
@@ -99,17 +104,20 @@ class BookStorageServiceTest {
 
     @Test
     void testSave_ShouldPersistBook_WhenBookIsValid() {
-
         BookDto bookDto = new BookDto(null, "123-456-789", "Test Book", "Fiction", "Description", "Author");
         Book book = BookMapper.mapToBook(bookDto);
+
         when(repository.findByIsbn("123-456-789")).thenReturn(Optional.empty());
         when(repository.save(any(Book.class))).thenReturn(book);
 
         BookDto result = service.save(bookDto);
 
         assertThat(result.isbn()).isEqualTo("123-456-789");
+
         verify(repository, times(1)).findByIsbn("123-456-789");
         verify(repository, times(1)).save(any(Book.class));
+
+        verify(bookProducer, times(1)).sendMessage(any(BookEvent.class));
     }
 
     @Test

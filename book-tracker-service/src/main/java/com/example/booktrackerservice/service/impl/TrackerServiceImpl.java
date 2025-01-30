@@ -31,31 +31,33 @@ public class TrackerServiceImpl implements TrackerService {
     @Transactional
     public void save(long bookId) {
         if (repository.findByBookId(bookId).isPresent()) {
-            throw new DuplicateDataException("Tracker with Book ID:" + bookId + " already exists");
+            throw new DuplicateDataException("Tracker with book id: " + bookId + " already exists");
         }
         Tracker tracker = new Tracker(bookId,"AVAILABLE");
         TrackerMapper.mapToBookTrackerDto(repository.save(tracker));
     }
 
     @Transactional
-    public void updateTrackerStatus(long bookId, String status) {
-        int updatedRows = repository.updateStatus(bookId, status);
-        if (updatedRows == 0) {
-            throw new NotFoundException("Tracker with book id:" + bookId + "does not exists");
+    public TrackerDto update(long id, TrackerDto trackerDto) {
+        if (repository.findById(id).isEmpty()) {
+            throw new NotFoundException("Tracker with id: " + id + " does not exists");
         }
+        Tracker book = TrackerMapper.mapToBookTracker(trackerDto);
+        book.setId(id);
+        return TrackerMapper.mapToBookTrackerDto(repository.save(book));
     }
 
     @Transactional
     public void deleteByBookId(long id) {
         repository.findByBookId(id)
-                .orElseThrow(() -> new NotFoundException("Tracker with book id:" + id + "does not exists"));
+                .orElseThrow(() -> new NotFoundException("Tracker with book id: " + id + " does not exists"));
         repository.deleteByBookId(id);
     }
 
     @Transactional
     public void deleteById(long id) {
-        repository.findByBookId(id)
-                .orElseThrow(() -> new NotFoundException("Tracker with id:" + id + "does not exists"));
+        repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Tracker with id: " + id + " does not exists"));
         repository.deleteById(id);
     }
 }

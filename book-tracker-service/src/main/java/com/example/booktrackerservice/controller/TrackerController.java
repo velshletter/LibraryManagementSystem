@@ -26,9 +26,9 @@ public class TrackerController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateTrackerStatus(@PathVariable long id, @RequestParam String status) {
-        trackerService.updateTrackerStatus(id, status);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    public ResponseEntity<TrackerDto> updateTrackerStatus(@PathVariable long id, @RequestBody TrackerDto trackerDto) {
+        TrackerDto updatedTracker = trackerService.update(id, trackerDto);
+        return new ResponseEntity<>(updatedTracker, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

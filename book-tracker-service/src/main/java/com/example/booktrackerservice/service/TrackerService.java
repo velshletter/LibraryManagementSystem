@@ -10,7 +10,7 @@ public interface TrackerService {
 
     List<TrackerDto> findAvailableBooks();
 
-    void updateTrackerStatus(long id, String status);
+    TrackerDto update(long id, TrackerDto trackerDto);
 
     void deleteByBookId(long id);
 
